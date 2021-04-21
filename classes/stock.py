@@ -5,15 +5,15 @@ Created on Tue Apr 20 23:46:15 2021
 @author: DECO
 """
 
-from classes.operation import Operation
+from classes.order import Order
 
 class Stock():
     
-    def __init__(self, name=None, ticker='ABCD', list_operations=[], 
+    def __init__(self, name=None, ticker='ABCD', list_orders=[], 
                  list_dividends=[], amount=0, cost=0):
         self.name = name
         self.ticker = ticker
-        self.list_operations = list_operations
+        self.list_orders = list_orders
         self.list_dividends = list_dividends
         self.amount = amount
         self.cost = cost
@@ -34,9 +34,9 @@ class Stock():
                                                                self.cost)
     
     def get_amount_cost(self, date):
-        operations_before = [op for op in self.list_operations if op.date <= date]
-        if len(operations_before) > 0:
-            op_sum = sum(operations_before, Operation())
+        orders_before = [op for op in self.list_orders if op.date <= date]
+        if len(orders_before) > 0:
+            op_sum = sum(orders_before, Order())
             amount = op_sum.amount
             cost = op_sum.cost
         else:
@@ -44,11 +44,11 @@ class Stock():
             cost = 0
         return amount, cost
     
-    def add_operation(self, operation):
-        if isinstance(operation, list):
-            self.list_operations = self.list_operations + operation
+    def add_order(self, order):
+        if isinstance(order, list):
+            self.list_orders = self.list_orders + order
         else:
-            self.list_operations.append(operation)
+            self.list_orders.append(order)
         self.update_amount()
         
     def add_dividend(self, dividend):
@@ -58,6 +58,6 @@ class Stock():
             self.list_dividends.append(dividend)
             
     def update_amount(self):
-        op_sum = sum(self.list_operations, Operation())
+        op_sum = sum(self.list_orders, Order())
         self.amount = op_sum.amount
         self.cost = op_sum.cost

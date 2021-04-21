@@ -7,7 +7,7 @@ Created on Tue Apr 20 23:14:29 2021
 
 import numpy as np
 
-class Operation():
+class Order():
     
     def __init__(self, date=None, amount=0, cost=0, kind='buy'):
         self.date = date
@@ -16,7 +16,7 @@ class Operation():
         self.kind = kind
         
     def __repr__(self):
-        return 'Operation({}, {}, {}, \'{}\')'.format(self.date, self.amount,
+        return 'Order({}, {}, {}, \'{}\')'.format(self.date, self.amount,
                                                   self.cost, self.kind)
     
     def __str__(self):
@@ -27,7 +27,7 @@ class Operation():
                                                     self.amount, self.cost)
     
     def __add__(self, other):
-        # If it's a sell operation, the amount becomes negative
+        # If it's a sell order, the amount becomes negative
         amount_a = self.amount*(2*(self.kind != 'sell')-1) 
         amount_b = other.amount*(2*(other.kind != 'sell')-1)
         amount = amount_a + amount_b
@@ -43,4 +43,4 @@ class Operation():
             kind = 'buy'
         else:
             kind = 'sell'
-        return Operation(None, amount, cost, kind)
+        return Order(None, amount, cost, kind)

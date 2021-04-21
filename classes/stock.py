@@ -59,3 +59,4 @@ class Stock():
         op_sum = sum(self.list_orders, Order())
         self.amount = op_sum.amount
         self.cost = op_sum.price*self.amount
+        

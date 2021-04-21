@@ -17,8 +17,8 @@ op3 = Order('2020-03-01', 15, 10, 'sell')
 div1 = Dividend(None, 10)
 div2 = Dividend(None, 15)
 
-stock = Stock('MCMP', [op1, op2, op3], [div1, div2])
-stock2 = Stock('MCMP')
+stock = Stock('WEGE3', [op1, op2, op3], [div1, div2])
+stock2 = Stock('WEGE3')
 stock2.add_order(op1)
 stock2.add_order([op2, op3])
 stock2.add_dividend(div1)
@@ -27,3 +27,9 @@ stock2.add_dividend([div2])
 fileIO = FileIO()
 wallet = fileIO.load_orders('database.txt')
 
+fileIO.update_stock_price_history([stock.ticker for stock in 
+                                   wallet.list_stocks])
+history = fileIO.load_stock_price_history([stock.ticker for stock in 
+                                   wallet.list_stocks])
+
+value = history.get_value_wallet('2020-01-03', wallet)

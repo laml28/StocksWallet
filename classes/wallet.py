@@ -27,4 +27,5 @@ class Wallet():
         return mystr[:-1]
     
     def get_cost(self, date):
-        return sum([stock.get_amount_cost(date)[1] for stock in self.list_stocks])
+        return sum([stock.get_amount_cost(date)[1] for stock in 
+                    self.list_stocks])

@@ -21,7 +21,18 @@ class History():
         self.data[ticker] = data
         
     def get_value_stock(self, date, ticker):
-        return self.data[ticker].loc[self.data[ticker].index<=date].iloc[-1,0]
+        try:
+            value = self.data[ticker].loc[date, 'Price']
+        # If the date is not in the index it may be because...
+        except:
+            # The date is prior to the beginning of the stock record
+            if date < self.data[ticker].index[0]:
+                value = 0
+            # Or it's simply a day without quotation (e.g. weekend)
+            else: 
+                data_before = self.data[ticker].loc[self.data[ticker].index<=date]
+                value = data_before.iloc[-1,0]
+        return value
     
     def get_value_wallet(self, date, wallet):
         value = 0
@@ -29,3 +40,4 @@ class History():
             value += (stock.get_amount_cost(date)[0]
                       *self.get_value_stock(date, stock.ticker))
         return value
+    

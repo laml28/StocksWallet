@@ -29,3 +29,13 @@ class Wallet():
     def get_cost(self, date):
         return sum([stock.get_amount_cost(date)[1] for stock in 
                     self.list_stocks])
+    
+    def get_tickers(self):
+        return [stock.ticker for stock in self.list_stocks]
+    
+    def get_first_date(self):
+        date_min = '2099-12-31'
+        for stock in self.list_stocks:
+            date_min= min([date_min] 
+                          + [order.date for order in stock.list_orders])
+        return date_min

@@ -9,9 +9,8 @@ from classes.order import Order
 
 class Stock():
     
-    def __init__(self, name=None, ticker='ABCD', list_orders=[], 
+    def __init__(self, ticker='ABCD', list_orders=[], 
                  list_dividends=[], amount=0, cost=0):
-        self.name = name
         self.ticker = ticker
         self.list_orders = list_orders
         self.list_dividends = list_dividends
@@ -21,8 +20,7 @@ class Stock():
              self.update_amount()
         
     def __repr__(self):
-        return 'Stock({}, {}, {}, {}, {}, {})'.format(self.name,
-                                                      self.ticker,
+        return 'Stock({}, {}, {}, {}, {})'.format(self.ticker,
                                                       [],
                                                       [],
                                                       self.amount,
@@ -38,7 +36,7 @@ class Stock():
         if len(orders_before) > 0:
             op_sum = sum(orders_before, Order())
             amount = op_sum.amount
-            cost = op_sum.cost
+            cost = op_sum.price*amount
         else:
             amount = 0
             cost = 0
@@ -60,4 +58,4 @@ class Stock():
     def update_amount(self):
         op_sum = sum(self.list_orders, Order())
         self.amount = op_sum.amount
-        self.cost = op_sum.cost
+        self.cost = op_sum.price*self.amount

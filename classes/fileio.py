@@ -32,7 +32,7 @@ class FileIO():
     def update_stock_price_history(self, tickers, country):
         # By default get data starting 5 years ago
         today = dt.datetime.now().strftime('%d/%m/%Y')
-        for ticker in tickers:
+        for ticker in tickers+['BVSP']:
             begin = (dt.datetime.strptime(today, '%d/%m/%Y') 
                      - dt.timedelta(days=365*5)).strftime('%d/%m/%Y')
             path = 'price_history\\{}.csv'.format(ticker)
@@ -45,18 +45,17 @@ class FileIO():
                 data0 = pd.DataFrame(columns=['Price'],
                                      index=pd.Series([], name='Date'))
             if begin != today:
-                try:
-                    data = investpy.get_stock_historical_data(stock=ticker,
-                                                              country=country,
-                                                              from_date=begin,
-                                                              to_date=today)
-                except:
-                    search_result = investpy.search_quotes(text=ticker, 
-                                                           countries=[country],
-                                                           products=['stocks'], 
-                                                           n_results=1)
-                    data = search_result.retrieve_historical_data(
-                                            from_date=begin, to_date=today)
+                # try:
+                #     data = investpy.get_stock_historical_data(stock=ticker,
+                #                                               country=country,
+                #                                               from_date=begin,
+                #                                               to_date=today)
+                # except:
+                search_result = investpy.search_quotes(text=ticker, 
+                                                       countries=[country],
+                                                       n_results=1)
+                data = search_result.retrieve_historical_data(
+                                        from_date=begin, to_date=today)
 
                 data.index = pd.to_datetime(data.index)
                 data = data[['Close']]

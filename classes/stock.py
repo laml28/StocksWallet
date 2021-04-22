@@ -6,6 +6,7 @@ Created on Tue Apr 20 23:46:15 2021
 """
 
 from classes.order import Order
+from classes.dividend import Dividend
 
 class Stock():
     
@@ -42,6 +43,15 @@ class Stock():
             cost = 0
         return amount, cost
     
+    def get_dividends(self, date):
+        divs_before = [div for div in self.list_dividends if div.date <= date]
+        if len(divs_before) > 0:
+            div_sum = sum(divs_before, Dividend())
+            value = div_sum.value
+        else:
+            value = 0
+        return value
+    
     def add_order(self, order):
         if isinstance(order, list):
             self.list_orders = self.list_orders + order
@@ -60,3 +70,6 @@ class Stock():
         self.amount = op_sum.amount
         self.cost = op_sum.price*self.amount
         
+    def get_first_date(self):
+        date_start = min([order.date for order in self.list_orders])
+        return date_start

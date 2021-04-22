@@ -36,6 +36,7 @@ class Wallet():
     def get_first_date(self):
         date_min = '2099-12-31'
         for stock in self.list_stocks:
-            date_min= min([date_min] 
-                          + [order.date for order in stock.list_orders])
+            # date_min = min([date_min] 
+            #               + [order.date for order in stock.list_orders])
+            date_min = min([date_min, stock.get_first_date()])
         return date_min

@@ -13,20 +13,31 @@ import investpy
 
 from classes.stock import Stock
 from classes.order import Order
+from classes.dividend import Dividend
 from classes.wallet import Wallet
 from classes.history import History
 
 class FileIO():
     
-    def load_orders(self, path):
-        orders = pd.read_csv(path, sep=';', index_col=0, header=0)
+    def load_orders(self, path_orders, path_dividends):
+        orders = pd.read_csv(path_orders, sep=';', index_col=0, header=0)
+        dividends = pd.read_csv(path_dividends, sep=';', index_col=0, header=0)
         list_stocks = []
         for ticker in orders.index.unique():
             list_orders = []
             for row in orders.loc[[ticker]].iterrows():
-                list_orders.append(Order(row[1]['Date'], row[1]['Amount'],
-                                         row[1]['Price'], row[1]['Kind']))
-            list_stocks.append(Stock(ticker, list_orders))
+                list_orders.append(Order(row[1]['Date'], 
+                                         row[1]['Amount'],
+                                         row[1]['Price'], 
+                                         row[1]['Kind']))
+            list_dividends = []
+            if ticker in dividends.index:
+                for row in dividends.loc[[ticker]].iterrows():
+                    list_dividends.append(Dividend(row[1]['Date'], 
+                                                   row[1]['Value'],
+                                                   row[1]['Kind']))
+            list_stocks.append(Stock(ticker, list_orders, list_dividends))
+
         return Wallet(list_stocks)
             
     def update_stock_price_history(self, tickers, country):

@@ -14,8 +14,11 @@ class History():
         return 'History([])'
     
     def __str__(self):
-        return ('History for' + [' {},'.format(tkr) for tkr in 
-                                  self.data])[:-1]
+        if len(self.data) == 0:
+            return 'Empty History object. No data was loaded yet.'
+        else:
+            return ('History for' + [' {},'.format(tkr) for tkr in 
+                                      self.data])[:-1]
     
     def add_data(self, ticker, data):
         self.data[ticker] = data

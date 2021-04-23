@@ -1,3 +1,4 @@
-*.csv
-*.txt
 /classes/__pycache__/
+/price_history/*.csv
+database_dividends.csv
+database_orders.csv

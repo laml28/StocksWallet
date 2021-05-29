@@ -1,0 +1,4 @@
+- get USD quotation and implement wallet of foreign stock
+- implement 'renda fixa', investment funds and a misc investment class
+- implement an overall investment wallet comprised of different types of investments
+- implement a target value, target year, and plot the target timeline to reach these goals, considering inflation

@@ -40,7 +40,7 @@ class Stock():
             cost = op_sum.price*amount
         else:
             amount = 0
-            cost = 0
+            cost = 0.0
         return amount, cost
     
     def get_dividends(self, date):
@@ -49,7 +49,7 @@ class Stock():
             div_sum = sum(divs_before, Dividend())
             value = div_sum.value
         else:
-            value = 0
+            value = 0.0
         return value
     
     def add_order(self, order):

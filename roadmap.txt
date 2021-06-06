@@ -1,4 +1,7 @@
-- get USD quotation and implement wallet of foreign stock
 - implement 'renda fixa', investment funds and a misc investment class
-- implement an overall investment wallet comprised of different types of investments
 - implement a target value, target year, and plot the target timeline to reach these goals, considering inflation
+- Properly handle splits and the way investy handles them
+- When updating stock prices, avoid running it if the current day is in the weekend
+
+Obs
+- Splits are weird, because investpy sometimes autocorrects past stock prices, sometimes not. For example, for WEGE3, past values are an exact history. For TSLA, past values are reduced according to the split.

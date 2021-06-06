@@ -1,4 +1,6 @@
 /classes/__pycache__/
 /price_history/*.csv
-database_dividends.csv
-database_orders.csv
+database_dividends_BR.csv
+database_orders_BR.csv
+database_dividends_US.csv
+database_orders_US.csv

@@ -7,8 +7,9 @@ Created on Wed Apr 21 01:04:47 2021
 
 class Wallet():
     
-    def __init__(self, list_stocks=[]):
+    def __init__(self, list_stocks=[], country='brazil'):
         self.list_stocks = list_stocks
+        self.country = country
     
     def add_stock(self, stock):
         if isinstance(stock, list):

@@ -27,15 +27,26 @@ class Processor():
         wallet_timeseriess = []
         for wallet in self.wallets:
             wallet_timeseries = pd.DataFrame(columns=['Value', 'Cost'])
+            if wallet.country == 'united states':
+                cost_before_usd = 0
+                cost_before_brl = 0
             for date in dates:
+                value = self.history.get_value_wallet(date, wallet)
+                cost = wallet.get_cost(date)
                 if wallet.country == 'united states':
-                    currency = self.history.get_value_stock(date, 'USD2BRL')
-                else:
-                    currency = 1
-                wallet_timeseries.loc[date] = [
-                    self.history.get_value_wallet(date, wallet)*currency,
-                    wallet.get_cost(date)*currency]
-            
+                    # Detect whenever the total stocks cost in dollars changed,
+                    # and then only apply the current USD to BRL quote to the
+                    # difference in cost to avoid converting past cost values
+                    usd2brl = self.history.get_value_stock(date, 'USD2BRL')
+                    value = value*usd2brl
+                    if cost != cost_before_usd:
+                        delta_cost_usd = cost - cost_before_usd
+                        cost_before_usd = cost+0
+                        cost = cost_before_brl + delta_cost_usd*usd2brl
+                        cost_before_brl = cost+0
+                    else:
+                        cost = cost_before_brl 
+                wallet_timeseries.loc[date] = [value, cost]
             wallet_timeseries['Profit'] = ((wallet_timeseries['Value']
                                             - wallet_timeseries['Cost'])
                                            /wallet_timeseries['Cost']

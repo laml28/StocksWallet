@@ -55,6 +55,7 @@ class Processor():
         return wallet_timeseriess
     
     def table_results(self, date=None):
+        print('Computing results for individual stocks and wallets as of today...')
         if date is None:
             date = dt.datetime.now().strftime('%Y-%m-%d')
 
@@ -123,6 +124,7 @@ class Processor():
         return dfs
     
     def plot_results(self, date1=None, date2=None, aggregate=True):
+        print('Plotting evolution over time of the wallets...')
         if date1 is None:
             date1 = self.date1
         if date2 is None:

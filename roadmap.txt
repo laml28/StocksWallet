@@ -1,3 +1,2 @@
 - implement 'renda fixa', investment funds and a misc investment class
 - implement a target value, target year, and plot the target timeline to reach these goals, considering inflation (first try didn't go so well because there must be some way to account for planned monthly investments)
-- When updating stock prices, avoid running it if the current day is in the weekend

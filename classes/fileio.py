@@ -19,6 +19,7 @@ from classes.wallet import Wallet
 class FileIO():
     
     def load_orders(self, path_orders, path_dividends, country):
+        print('Loading orders and dividends for {} wallet...'.format(country))
         orders = pd.read_csv(path_orders, sep=';', index_col=0, header=0)
         dividends = pd.read_csv(path_dividends, sep=';', index_col=0, header=0)
         list_stocks = []
@@ -44,8 +45,12 @@ class FileIO():
 
                 
     def update_stock_price_history(self, ticker, country):
+        # It today is not a business day, instead set use the latest b.day
+        today = dt.datetime.now()
+        today_m7 = (today - dt.timedelta(days=7)).strftime('%Y-%m-%d')
+        today = (pd.bdate_range(start=today_m7, end=today.strftime('%Y-%m-%d'))
+                 [-1].strftime('%d/%m/%Y'))
         # By default get data starting 5 years ago
-        today = dt.datetime.now().strftime('%d/%m/%Y')
         begin = (dt.datetime.strptime(today, '%d/%m/%Y') 
                  - dt.timedelta(days=365*5)).strftime('%d/%m/%Y')
         path = 'price_history\\{}.csv'.format(ticker)
@@ -59,6 +64,7 @@ class FileIO():
                                  index=pd.Series([], name='Date'))
         if (dt.datetime.strptime(begin, '%d/%m/%Y') 
             < dt.datetime.strptime(today, '%d/%m/%Y')):
+            print('Updating history for {}...'.format(ticker))
             # try:
             #     data = investpy.get_stock_historical_data(stock=ticker,
             #                                               country=country,
@@ -98,6 +104,7 @@ class FileIO():
                      - dt.timedelta(days=365*5)).strftime('%d/%m/%Y')
         if (dt.datetime.strptime(begin, '%d/%m/%Y') 
             < dt.datetime.strptime(today, '%d/%m/%Y')):
+            # print('Updating history for IPCA...')
             url = ('http://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/'
                    'dados?formato=json&dataInicial={}&dataFinal={}'
                    .format(433, begin, today))
@@ -114,8 +121,12 @@ class FileIO():
     def update_dollar_history(self):
         # https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries
         path = 'price_history\\USD2BRL.csv'
+        # It today is not a business day, instead set use the latest b.day
+        today = dt.datetime.now()
+        today_m7 = (today - dt.timedelta(days=7)).strftime('%Y-%m-%d')
+        today = (pd.bdate_range(start=today_m7, end=today.strftime('%Y-%m-%d'))
+                  [-1].strftime('%d/%m/%Y'))
         # By default get data starting 5 years ago
-        today = dt.datetime.now().strftime('%d/%m/%Y')
         if os.path.isfile(path):
             data0 = pd.read_csv(path, index_col=0, header=0, sep=';')
             data0.index = pd.to_datetime(data0.index)
@@ -127,6 +138,7 @@ class FileIO():
                      - dt.timedelta(days=365*5)).strftime('%d/%m/%Y')
         if (dt.datetime.strptime(begin, '%d/%m/%Y') 
             < dt.datetime.strptime(today, '%d/%m/%Y')):
+            # print('Updating history for USD to BRL quotations...')
             url = ('http://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/'
                    'dados?formato=json&dataInicial={}&dataFinal={}'
                    .format(1, begin, today))

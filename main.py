@@ -39,6 +39,6 @@ processor = Processor([wallet_BR, wallet_US], history)
 
 # Generate the up-to-date results
 df = processor.table_results()
-processor.plot_results()
+processor.plot_results(aggregate=True)
 
 

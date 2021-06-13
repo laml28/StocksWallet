@@ -13,9 +13,10 @@ import matplotlib.pyplot as plt
 class Processor():
     
     def __init__(self, wallets, history):
-        self.wallet = wallets
+        self.wallets = wallets
         self.history = history
-        self.date1 = min([wallet.get_first_date()[:-2]+'01' for wallet in self.wallet])
+        self.adjust_stock_splits()
+        self.date1 = min([wallet.get_first_date()[:-2]+'01' for wallet in self.wallets])
         
     def calculate_wallet_value(self, date1=None, date2=None):
         if date1 is None:
@@ -24,7 +25,7 @@ class Processor():
             date2 = dt.datetime.now().strftime('%Y-%m-%d')
         dates = pd.bdate_range(date1, date2).strftime('%Y-%m-%d').to_list()
         wallet_timeseriess = []
-        for wallet in self.wallet:
+        for wallet in self.wallets:
             wallet_timeseries = pd.DataFrame(columns=['Value', 'Cost'])
             for date in dates:
                 if wallet.country == 'united states':
@@ -47,7 +48,7 @@ class Processor():
             date = dt.datetime.now().strftime('%Y-%m-%d')
 
         dfs = []
-        for wallet in self.wallet:
+        for wallet in self.wallets:
             df = pd.DataFrame(columns=['Current Price',
                                        'Amount',
                                        'Avg. Price',
@@ -117,28 +118,28 @@ class Processor():
             date2 = dt.datetime.now().strftime('%Y-%m-%d')
         # Get the values over time
         wallet_timeseriess = self.calculate_wallet_value(date1, date2)
+        # Get the IPCA values
+        ipca = self.history.data['IPCA']
+        ipca = ipca.loc[(ipca.index>=date1) & (ipca.index<=date2), :]
+        ipca.at[ipca.index[0],'Value'] = 0
+        # Get the BVSP values
+        try:
+            bvsp = self.history.data['BVSP']
+            bvsp = bvsp.loc[(bvsp.index>=date1) & (bvsp.index<=date2), :]
+            bvsp = bvsp/bvsp.iloc[0,0]-1
+        except:
+            bvsp = None 
         if aggregate:
             wallet_timeseriess = [sum(wallet_timeseriess)]
         for wallet_timeseries in wallet_timeseriess:
             # Get the 'weekly' values
-            wallet_timeseries2 = wallet_timeseries.copy()
-            wallet_timeseries2.index = pd.to_datetime(wallet_timeseries.index)
-            wallet_timeseries2['weekday'] = wallet_timeseries2.index.dayofweek
-            wallet_timeseries2 = \
-                wallet_timeseries2.loc[wallet_timeseries2['weekday']==4,:]
-            wallet_timeseries2.index = wallet_timeseries2.index.strftime('%Y-%m-%d')
-            # Get the IPCA values
-            ipca = self.history.data['IPCA']
-            ipca = ipca.loc[(ipca.index>=date1) & (ipca.index<=date2), :]
-            ipca.at[ipca.index[0],'Value'] = 0
-            # Get the BVSP values
-            try:
-                bvsp = self.history.data['BVSP']
-                bvsp = bvsp.loc[(bvsp.index>=date1) & (bvsp.index<=date2), :]
-                bvsp = bvsp/bvsp.iloc[0,0]-1
-            except:
-                bvsp = None    
-            
+            # wallet_timeseries2 = wallet_timeseries.copy()
+            # wallet_timeseries2.index = pd.to_datetime(wallet_timeseries.index)
+            # wallet_timeseries2['weekday'] = wallet_timeseries2.index.dayofweek
+            # wallet_timeseries2 = \
+            #     wallet_timeseries2.loc[wallet_timeseries2['weekday']==4,:]
+            # wallet_timeseries2.index = wallet_timeseries2.index.strftime('%Y-%m-%d')
+
             # Adjust the plot x ticks
             years = list(range(int(date1[:4]), int(date2[:4])+1))
             months = ['01', '04', '07', '10']
@@ -214,3 +215,50 @@ class Processor():
             return date
         else:
             return data.index[data.index>=date][0]
+        
+    
+    # def get_timeseries_target(self, date_start, amount_start, date_target,
+    #                           amount_target, inflation, start, end):
+    #     if inflation is None:
+    #         inflation = 4.5
+    #     amount_start2 = max([amount_start, 1])
+    #     time_to_target = (dt.datetime.strptime(date_target, '%Y-%m-%d')
+    #                       - dt.datetime.strptime(date_start, '%Y-%m-%d')) \
+    #                      .days/365  
+    #     amount_target2 = amount_target*(1+inflation/100)**(time_to_target)
+    #     daily_rate = (10**(1/time_to_target*np.log10(amount_target2
+    #                                                  /amount_start2)))**(1/365)
+    #     dates = pd.date_range(start, end).strftime('%Y-%m-%d').to_list()
+    #     start = dt.datetime.strptime(start, '%Y-%m-%d')
+    #     df = pd.DataFrame({'Target':[]})
+    #     for date in dates:
+    #         ndays = (dt.datetime.strptime(date, '%Y-%m-%d') - start).days
+    #         df.loc[date, 'Target'] = amount_start2*daily_rate**ndays
+    #     return df
+        
+    def adjust_stock_splits(self):
+        # import pdb
+        # pdb.set_trace()
+        for wallet in self.wallets:
+            for stock in wallet.list_stocks:
+                splits = [order for order in stock.list_orders if order.kind=='split']
+                for split in splits:
+                    date_before = (dt.datetime.strptime(split.date, '%Y-%m-%d')
+                                   - dt.timedelta(days=1)) \
+                                  .strftime('%Y-%m-%d')
+                    price_before = self.history.get_value_stock(date_before,
+                                                                stock.ticker)
+                    date_after = (dt.datetime.strptime(split.date, '%Y-%m-%d')
+                                   + dt.timedelta(days=1)) \
+                                  .strftime('%Y-%m-%d')
+                    price_after = self.history.get_value_stock(date_after,
+                                                                stock.ticker)
+                    # If the values are adjusted for the split, then perform
+                    # some math to display the actual stock value before the split
+                    if (price_before/price_after) < 1.5:
+                        amount_before, _ = stock.get_amount_cost(date_before)
+                        amount_after, _ = stock.get_amount_cost(date_after)
+                        split_x = amount_after/amount_before
+                        data = self.history.data[stock.ticker]
+                        data[data.index<split.date] *= split_x
+                    split.kind = 'split_ok'
